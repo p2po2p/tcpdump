@@ -30,20 +30,35 @@ public class CommandsHelper {
     public static String FILE_PATH = Environment.getExternalStorageDirectory() + "/EFiles/";
     public static String FILE_NAME = "capture.pcap";
 
-    public static boolean startCapture(Context context) {
-        Log.i("hqr", "startCapture start");
+    public static boolean startCapture(Context context, String ip, String port) {
+        Log.i("hqr", "startCapture start ip:" + ip +" port:" + port);
         //准备tcpdump文件+赋予tcpdump权限
         prepareTCPDumpFile(context);
         //获取any网卡的id
         int num = tcpdump_d_any();
         Log.i("hqr", "startCapture num:" + num);
+
+        String captureCommand = "tcpdump -i "+ num +" -p -vv -s 0";
+
+        if (ip != null && !ip.isEmpty()) {
+            captureCommand = captureCommand + " host " + ip;
+        }
+
+        if (port != null && !port.isEmpty()) {
+            captureCommand = captureCommand + " port " + port;
+        }
+
+        captureCommand = captureCommand + " -w " + DEST_FILE;
+
+        Log.i("h02659",captureCommand);
+
         boolean retVal = false;
         try {
             String[] commands = new String[7];
             commands[0] = "adb shell";
             commands[1] = "su";
             commands[5] = "cd /data/local";
-            commands[6] = "tcpdump -i "+ num +" -p -vv -s 0 -w " + DEST_FILE;
+            commands[6] = captureCommand;
             execCmd(commands);
         } catch (Exception e) {
             e.printStackTrace();

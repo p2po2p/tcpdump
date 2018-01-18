@@ -1,9 +1,13 @@
 <resources>
     <string name="app_name">tcpdump</string>
-    <string name="work_tip">操作步骤：\n1.点击【开始】按钮开始抓包\n2.运行你的程序，访问网络\n3.点击【停止】按钮来停止抓包\n4.导出文件 adb pull /sdcard/EFile/name.pcap\n\n确保手机能获取到root权限\n启动时请允许写入存储，否则会导致抓包失败</string>
+    <!--<string name="work_tip">操作步骤：\n1.点击【开始】按钮开始抓包\n2.运行你的程序，访问网络\n3.点击【停止】按钮来停止抓包\n4.导出文件 adb pull /sdcard/EFile/name.pcap\n\n确保手机能获取到root权限\n启动时请允许写入存储，否则会导致抓包失败</string>
+    -->
+    <string name="work_tip">注意：确保手机能获取到root权限\n启动时请允许写入存储，否则会导致抓包失败</string>
     <string name="start">start</string>
     <string name="stop">stop</string>
     <string name="export">export</string>
     <string name="send">send</string>
     <string name="sharing_title">分享</string>
+    <string name="ip_tip">ip:为空不过滤</string>
+    <string name="port_tip">port:为空不过滤</string>
 </resources>

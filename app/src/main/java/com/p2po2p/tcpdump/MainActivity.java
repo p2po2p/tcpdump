@@ -14,6 +14,7 @@ import android.support.v4.content.ContextCompat;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +32,8 @@ public class MainActivity extends Activity {
     private Button button_start_capture;
     private Button button_stop_capture;
     private Button button_export;
+    private EditText editText_ip;
+    private EditText editText_port;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +56,8 @@ public class MainActivity extends Activity {
         }
 
         textView = findViewById(R.id.textView);
+        editText_ip = findViewById(R.id.editText_ip);
+        editText_port = findViewById(R.id.editText_port);
 
         button_start_capture = findViewById(R.id.start_capture);
         button_start_capture.setOnClickListener(onStartCaptureClickListener);
@@ -117,6 +122,10 @@ public class MainActivity extends Activity {
             SimpleDateFormat format = new SimpleDateFormat("MMdd_HHmmss");
             String date = format.format(new Date(System.currentTimeMillis()));
 
+            final String ip = editText_ip.getText().toString();
+            final String port = editText_port.getText().toString();
+
+
             CommandsHelper.FILE_NAME = date + ".pcap";
             CommandsHelper.DEST_FILE = CommandsHelper.FILE_PATH + CommandsHelper.FILE_NAME;
 
@@ -126,7 +135,7 @@ public class MainActivity extends Activity {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    final boolean retVal = CommandsHelper.startCapture(MainActivity.this);
+                    final boolean retVal = CommandsHelper.startCapture(MainActivity.this, ip, port);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
