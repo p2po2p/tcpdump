@@ -135,6 +135,21 @@ public class CommandsHelper {
         Log.i("hqr", "prepareTCPDumpFile end");
     }
 
+    /**
+     * adb pull /sdcard/keeplive.pcap D:/log/
+     */
+    public static void exportFile() {
+        Log.i("hqr", "exportFile start");
+        String[] commands = new String[1];
+        commands[0] = "adb pull "+ DEST_FILE +" D:/log/";
+        Process process = execCmd(commands);
+        String result = parseInputStream(process.getInputStream());
+        if (!TextUtils.isEmpty(result)) {
+            Log.i("hqr", "exportFile   " + result);
+        }
+        Log.i("hqr", "exportFile end");
+    }
+
     public static Process execCmd(String command) {
         return execCmd(new String[]{command}, true);
     }
