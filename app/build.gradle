@@ -7,8 +7,8 @@ android {
         applicationId "com.p2po2p.tcpdump"
         minSdkVersion 19
         targetSdkVersion 26
-        versionCode 2
-        versionName "1.1"
+        versionCode 4
+        versionName "1.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 

@@ -31,12 +31,12 @@ public class CommandsHelper {
     public static String FILE_NAME = "capture.pcap";
 
     public static boolean startCapture(Context context, String ip, String port) {
-        Log.i("hqr", "startCapture start ip:" + ip +" port:" + port);
+        Log.i("h02659", "startCapture start ip:" + ip +" port:" + port);
         //准备tcpdump文件+赋予tcpdump权限
         prepareTCPDumpFile(context);
         //获取any网卡的id
         int num = tcpdump_d_any();
-        Log.i("hqr", "startCapture num:" + num);
+        Log.i("h02659", "startCapture num:" + num);
 
         String captureCommand = "tcpdump -i "+ num +" -p -vv -s 0";
 
@@ -63,16 +63,18 @@ public class CommandsHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Log.i("hqr", "startCapture end");
+        Log.i("h02659", "startCapture end");
         return retVal;
     }
 
     public static void stopCapture(Context context) {
-        Log.i("hqr", "stopCapture start");
+        Log.i("h02659", "stopCapture start");
         // 找出所有的带有tcpdump的进程
         String[] commands = new String[2];
         commands[0] = "adb shell";
-        commands[1] = "ps|grep tcpdump|grep root|awk '{print $2}'";
+        //commands[1] = "ps|grep tcpdump|grep root|awk '{print $2}'";
+        commands[1] = "ps|grep tcpdump|grep root";
+        Log.i("h02659",commands[1] );
         Process process = execCmd(commands);
         String result = parseInputStream(process.getInputStream());
         if (!TextUtils.isEmpty(result)) {
@@ -80,10 +82,11 @@ public class CommandsHelper {
             String[] killCmds = new String[pids.length];
             for (int i = 0; i < pids.length; ++i) {
                 killCmds[i] = "kill -9 " + pids[i];
+                Log.i("h02659",killCmds[i] );
             }
             execCmd(killCmds);
         }
-        Log.i("hqr", "stopCapture end");
+        Log.i("h02659", "stopCapture end");
     }
 
     /**
@@ -100,7 +103,7 @@ public class CommandsHelper {
      * 8.nfqueue (Linux netfilter queue (NFQUEUE) interface)
      */
     private static int tcpdump_d_any() {
-        Log.i("hqr", "tcpdump_d_any start");
+        Log.i("h02659", "tcpdump_d_any start");
         int num = 1;
         String[] commands = new String[2];
         commands[0] = "adb shell";
@@ -111,18 +114,18 @@ public class CommandsHelper {
             String[] lines = result.split("\n");
             for (String line : lines) {
                 if (line.contains("any")) {
-                    Log.i("hqr", "any id = " + line.substring(0, 1));
+                    Log.i("h02659", "any id = " + line.substring(0, 1));
                     num = Integer.valueOf(line.substring(0, 1));
                     break;
                 }
             }
         }
-        Log.i("hqr", "tcpdump_d_any end");
+        Log.i("h02659", "tcpdump_d_any end");
         return num;
     }
 
     private static void prepareTCPDumpFile(Context context) {
-        Log.i("hqr", "prepareTCPDumpFile start");
+        Log.i("h02659", "prepareTCPDumpFile start");
         InputStream is = null;
         OutputStream os = null;
         boolean retVal = false;
@@ -147,22 +150,22 @@ public class CommandsHelper {
             closeSafely(is);
             closeSafely(os);
         }
-        Log.i("hqr", "prepareTCPDumpFile end");
+        Log.i("h02659", "prepareTCPDumpFile end");
     }
 
     /**
      * adb pull /sdcard/keeplive.pcap D:/log/
      */
     public static void exportFile() {
-        Log.i("hqr", "exportFile start");
+        Log.i("h02659", "exportFile start");
         String[] commands = new String[1];
         commands[0] = "adb pull "+ DEST_FILE +" D:/log/";
         Process process = execCmd(commands);
         String result = parseInputStream(process.getInputStream());
         if (!TextUtils.isEmpty(result)) {
-            Log.i("hqr", "exportFile   " + result);
+            Log.i("h02659", "exportFile   " + result);
         }
-        Log.i("hqr", "exportFile end");
+        Log.i("h02659", "exportFile end");
     }
 
     public static Process execCmd(String command) {

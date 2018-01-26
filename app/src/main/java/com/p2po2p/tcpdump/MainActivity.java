@@ -119,6 +119,9 @@ public class MainActivity extends Activity {
     private View.OnClickListener onStartCaptureClickListener = new View.OnClickListener() {
         @Override
         public void onClick(final View v) {
+
+            button_export.setEnabled(false);
+
             SimpleDateFormat format = new SimpleDateFormat("MMdd_HHmmss");
             String date = format.format(new Date(System.currentTimeMillis()));
 
@@ -129,7 +132,7 @@ public class MainActivity extends Activity {
             CommandsHelper.FILE_NAME = date + ".pcap";
             CommandsHelper.DEST_FILE = CommandsHelper.FILE_PATH + CommandsHelper.FILE_NAME;
 
-            textView.setText("\n\n" + "目标文件： " + CommandsHelper.DEST_FILE);
+            textView.setText("\n" + "保存路径： " + CommandsHelper.DEST_FILE);
 
             v.setEnabled(false);
             new Thread(new Runnable() {
