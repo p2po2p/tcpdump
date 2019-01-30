@@ -26,19 +26,21 @@ import java.io.OutputStream;
 public class CommandsHelper {
     private static final String NAME = "tcpdump";
     private static final String TAG = "CommandsHelper";
-    public static String DEST_FILE = Environment.getExternalStorageDirectory() + "/EFiles/capture.pcap";
-    public static String FILE_PATH = Environment.getExternalStorageDirectory() + "/EFiles/";
-    public static String FILE_NAME = "capture.pcap";
+    static String DEST_FILE = "/capture.pcap";
 
-    public static boolean startCapture(Context context, String ip, String port) {
+    static String FILE_NAME = "capture.pcap";
+
+    static boolean startCapture(Context context, String ip, String port) {
         Log.i("h02659", "startCapture start ip:" + ip +" port:" + port);
         //准备tcpdump文件+赋予tcpdump权限
         prepareTCPDumpFile(context);
         //获取any网卡的id
-        int num = tcpdump_d_any();
+        /*int num = tcpdump_d_any();
         Log.i("h02659", "startCapture num:" + num);
 
-        String captureCommand = "tcpdump -i "+ num +" -p -vv -s 0";
+        String captureCommand = "tcpdump -i "+ num +" -p -vv -s 0";*/
+
+        String captureCommand = "./tcpdump -i any -p -vv -s 0";
 
         if (ip != null && !ip.isEmpty()) {
             captureCommand = captureCommand + " host " + ip;
@@ -67,7 +69,7 @@ public class CommandsHelper {
         return retVal;
     }
 
-    public static void stopCapture(Context context) {
+    static void stopCapture(Context context) {
         Log.i("h02659", "stopCapture start");
         // 找出所有的带有tcpdump的进程
         String[] commands = new String[2];
@@ -132,8 +134,8 @@ public class CommandsHelper {
         try {
             AssetManager am = context.getAssets();
             is = am.open(NAME);
-            File sdcardFile = Environment.getExternalStorageDirectory();
-            File dstFile = new File(sdcardFile, NAME);
+            File dstFile = new File(context.getExternalFilesDir(""), NAME);
+            Log.i("h02659", dstFile.getAbsolutePath());
             os = new FileOutputStream(dstFile);
             copyStream(is, os);
             String[] commands = new String[7];
