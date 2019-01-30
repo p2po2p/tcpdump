@@ -6,10 +6,13 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +29,8 @@ public class MainActivity extends Activity {
     private Button button_export;
     private EditText editText_ip;
     private EditText editText_port;
+    private Spinner spinner_mode;
+    private String capture_mode = "any";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +42,7 @@ public class MainActivity extends Activity {
         textView = findViewById(R.id.textView);
         editText_ip = findViewById(R.id.editText_ip);
         editText_port = findViewById(R.id.editText_port);
+        spinner_mode = findViewById(R.id.spinner_mode);
 
         button_start_capture = findViewById(R.id.start_capture);
         button_start_capture.setOnClickListener(onStartCaptureClickListener);
@@ -45,6 +51,7 @@ public class MainActivity extends Activity {
         button_export = findViewById(R.id.export);
         button_export.setOnClickListener(onExportClickListener);
         button_export.setEnabled(false);
+        spinner_mode.setOnItemSelectedListener(onItemSelectedListener);
     }
 
     private void initNotification() {
@@ -117,7 +124,7 @@ public class MainActivity extends Activity {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    final boolean retVal = CommandsHelper.startCapture(MainActivity.this, ip, port);
+                    final boolean retVal = CommandsHelper.startCapture(MainActivity.this, ip, port, capture_mode);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -148,6 +155,26 @@ public class MainActivity extends Activity {
             String path = CommandsHelper.DEST_FILE;
 
             ShareUtil.shareSingle(MainActivity.this, "抓包", path);
+        }
+    };
+
+    private Spinner.OnItemSelectedListener onItemSelectedListener = new Spinner.OnItemSelectedListener() {
+
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            Log.i("h02659", "position:"+position);
+            if (position == 0) {
+                capture_mode = "any";
+            } else if (position == 1) {
+                capture_mode = "lo";
+            } else {
+                capture_mode = "any";
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
         }
     };
 }

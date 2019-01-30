@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -17,61 +16,105 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/editText_ip"
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="5dp"
-        android:hint="@string/ip_tip"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
 
-    <EditText
-        android:id="@+id/editText_port"
-        android:inputType="number"
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="5dp"
-        android:hint="@string/port_tip"/>
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="指定ip   " />
+
+        <EditText
+            android:id="@+id/editText_ip"
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:hint="@string/ip_tip" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="指定端口" />
+
+        <EditText
+            android:id="@+id/editText_port"
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:hint="@string/port_tip"
+            android:inputType="number" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="抓包模式" />
+
+
+        <Spinner
+            android:id="@+id/spinner_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:entries="@array/capture_mode"/>
+
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="20dp"
         android:gravity="center_horizontal"
+        android:paddingTop="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/start_capture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="@string/start"/>
+        android:text="@string/start" />
 
     <Button
         android:id="@+id/stop_capture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="@string/stop"/>
+        android:text="@string/stop" />
 
     <Button
         android:id="@+id/export"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="@string/export"/>
+        android:text="@string/export" />
 
     <Button
         android:id="@+id/send"
-        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="@string/send"/>
+        android:text="@string/send"
+        android:visibility="gone" />
 
 </LinearLayout>

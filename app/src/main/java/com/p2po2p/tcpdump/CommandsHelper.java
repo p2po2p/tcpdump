@@ -2,7 +2,6 @@ package com.p2po2p.tcpdump;
 
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -30,7 +29,7 @@ public class CommandsHelper {
 
     static String FILE_NAME = "capture.pcap";
 
-    static boolean startCapture(Context context, String ip, String port) {
+    static boolean startCapture(Context context, String ip, String port, String mode) {
         Log.i("h02659", "startCapture start ip:" + ip +" port:" + port);
         //准备tcpdump文件+赋予tcpdump权限
         prepareTCPDumpFile(context);
@@ -40,7 +39,7 @@ public class CommandsHelper {
 
         String captureCommand = "tcpdump -i "+ num +" -p -vv -s 0";*/
 
-        String captureCommand = "./tcpdump -i any -p -vv -s 0";
+        String captureCommand = "./tcpdump -i "+mode+" -p -vv -s 0";
 
         if (ip != null && !ip.isEmpty()) {
             captureCommand = captureCommand + " host " + ip;

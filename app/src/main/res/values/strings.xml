@@ -10,4 +10,10 @@
     <string name="sharing_title">分享</string>
     <string name="ip_tip">ip:为空不过滤</string>
     <string name="port_tip">port:为空不过滤</string>
+
+    <string-array name="capture_mode">
+        <item>any</item>
+        <item>lo</item>
+    </string-array>
+
 </resources>
