@@ -1,11 +1,17 @@
 package com.p2po2p.tcpdump;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -21,8 +27,6 @@ import java.util.Date;
 
 public class MainActivity extends Activity {
 
-    private NotificationManager notificationManager;
-
     private TextView textView;
     private Button button_start_capture;
     private Button button_stop_capture;
@@ -37,8 +41,13 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        initNotification();
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String channelId = "chat";
+            String channelName = "消息";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            createNotificationChannel(channelId, channelName, importance);
+        }
+        sendChatMsg();
         textView = findViewById(R.id.textView);
         editText_ip = findViewById(R.id.editText_ip);
         editText_port = findViewById(R.id.editText_port);
@@ -52,41 +61,6 @@ public class MainActivity extends Activity {
         button_export.setOnClickListener(onExportClickListener);
         button_export.setEnabled(false);
         spinner_mode.setOnItemSelectedListener(onItemSelectedListener);
-    }
-
-    private void initNotification() {
-
-        PendingIntent pendingIntent = PendingIntent.getActivities(this, 0, new Intent[]{new Intent(this, MainActivity.class)}, 0);
-
-        //第一步：获取状态通知栏管理：
-        notificationManager = (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
-        //第二步：实例化通知栏构造器NotificationCompat.Builder：
-        Notification.Builder builder = new Notification.Builder(this);
-        //第三步：对Builder进行配置：
-        builder.setContentTitle(getString(R.string.app_name))//设置通知栏标题
-                .setContentText("触摸进行配置") //<span style="font-family: Arial;">/设置通知栏显示内容</span>
-                /*Notification.FLAG_SHOW_LIGHTS              //三色灯提醒，在使用三色灯提醒时候必须加该标志符
-                Notification.FLAG_ONGOING_EVENT          //发起正在运行事件（活动中）
-                Notification.FLAG_INSISTENT   //让声音、振动无限循环，直到用户响应 （取消或者打开）
-                Notification.FLAG_ONLY_ALERT_ONCE  //发起Notification后，铃声和震动均只执行一次
-                Notification.FLAG_AUTO_CANCEL      //用户单击通知后自动消失
-                Notification.FLAG_NO_CLEAR          //只有全部清除时，Notification才会清除 ，不清楚该通知(QQ的通知无法清除，就是用的这个)
-                Notification.FLAG_FOREGROUND_SERVICE    //表示正在运行的服务*/
-                .setContentIntent(pendingIntent) //设置通知栏点击意图
-//  .setNumber(number) //设置通知集合的数量
-                .setTicker(getString(R.string.app_name) + "开始工作") //通知首次出现在通知栏，带上升动画效果的
-                //.setWhen(System.currentTimeMillis())//通知产生的时间，会在通知信息里显示，一般是系统获取到的时间
-                .setPriority(Notification.PRIORITY_DEFAULT) //设置该通知优先级
-//  .setAutoCancel(true)//设置这个标志当用户单击面板就可以让通知将自动取消
-                .setDefaults(Notification.DEFAULT_VIBRATE)//向通知添加声音、闪灯和振动效果的最简单、最一致的方式是使用当前的用户默认设置，使用defaults属性，可以组合
-                //Notification.DEFAULT_ALL  Notification.DEFAULT_SOUND 添加声音 // requires VIBRATE permission
-                .setSmallIcon(R.mipmap.ic_launcher)//设置通知小ICON
-                .setOngoing(true);//// 将Ongoing设为true 那么notification将不能滑动删除
-
-
-        //第五步，最简单的一部，发送通知请求
-        Notification notification = builder.build();
-        notificationManager.notify(R.mipmap.ic_launcher, notification);
     }
 
     @Override
@@ -131,10 +105,18 @@ public class MainActivity extends Activity {
                             if (!retVal) {
                                 v.setEnabled(true);
                                 //Toast.makeText(MainActivity.this, "startCapture result = " + retVal, Toast.LENGTH_SHORT).show();
-                                Toast.makeText(MainActivity.this, "开启失败，请确认是否授予root权限", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "开启失败，请确认授予root权限，程序即将退出", Toast.LENGTH_LONG).show();
                             }
                         }
                     });
+                    if (!retVal) {
+                        try {
+                            Thread.sleep(3000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        android.os.Process.killProcess(android.os.Process.myPid());
+                    }
                 }
             }).start();
         }
@@ -177,4 +159,65 @@ public class MainActivity extends Activity {
 
         }
     };
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private void createNotificationChannel(String channelId, String channelName, int importance) {
+        NotificationChannel channel = new NotificationChannel(channelId, channelName, importance);
+        channel.setShowBadge(true);
+        NotificationManager notificationManager = (NotificationManager) getSystemService(
+                NOTIFICATION_SERVICE);
+        notificationManager.createNotificationChannel(channel);
+    }
+
+    public void sendChatMsg() {
+        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = manager.getNotificationChannel("chat");
+            if (channel.getImportance() == NotificationManager.IMPORTANCE_NONE) {
+                Intent intent = new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS);
+                intent.putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
+                intent.putExtra(Settings.EXTRA_CHANNEL_ID, channel.getId());
+                startActivity(intent);
+                Toast.makeText(this, "请手动将通知打开", Toast.LENGTH_SHORT).show();
+            }
+        }
+        PendingIntent pendingIntent = PendingIntent.getActivities(this, 0, new Intent[]{new Intent(this, MainActivity.class)}, 0);
+
+
+        /*
+        * builder.setContentTitle(getString(R.string.app_name))//设置通知栏标题
+                .setContentText("触摸进行配置") //<span style="font-family: Arial;">/设置通知栏显示内容</span>
+                /*Notification.FLAG_SHOW_LIGHTS              //三色灯提醒，在使用三色灯提醒时候必须加该标志符
+                Notification.FLAG_ONGOING_EVENT          //发起正在运行事件（活动中）
+                Notification.FLAG_INSISTENT   //让声音、振动无限循环，直到用户响应 （取消或者打开）
+                Notification.FLAG_ONLY_ALERT_ONCE  //发起Notification后，铃声和震动均只执行一次
+                Notification.FLAG_AUTO_CANCEL      //用户单击通知后自动消失
+                Notification.FLAG_NO_CLEAR          //只有全部清除时，Notification才会清除 ，不清楚该通知(QQ的通知无法清除，就是用的这个)
+                Notification.FLAG_FOREGROUND_SERVICE    //表示正在运行的服务
+                .setContentIntent(pendingIntent) //设置通知栏点击意图
+//  .setNumber(number) //设置通知集合的数量
+                .setTicker(getString(R.string.app_name) + "开始工作") //通知首次出现在通知栏，带上升动画效果的
+                //.setWhen(System.currentTimeMillis())//通知产生的时间，会在通知信息里显示，一般是系统获取到的时间
+                .setPriority(Notification.PRIORITY_DEFAULT) //设置该通知优先级
+//  .setAutoCancel(true)//设置这个标志当用户单击面板就可以让通知将自动取消
+                .setDefaults(Notification.DEFAULT_VIBRATE)//向通知添加声音、闪灯和振动效果的最简单、最一致的方式是使用当前的用户默认设置，使用defaults属性，可以组合
+                //Notification.DEFAULT_ALL  Notification.DEFAULT_SOUND 添加声音 // requires VIBRATE permission
+                .setSmallIcon(R.mipmap.ic_launcher)//设置通知小ICON
+                .setOngoing(true);//// 将Ongoing设为true 那么notification将不能滑动删除
+        *
+        * */
+
+
+        Notification notification = new NotificationCompat.Builder(this, "chat")
+                .setContentTitle("tcpdump")
+                .setContentText("触摸进行抓包配置")
+                .setWhen(System.currentTimeMillis())
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
+                //.setAutoCancel(true)
+                .setOngoing(true)
+                .setContentIntent(pendingIntent)
+                .build();
+        manager.notify(1, notification);
+    }
 }
