@@ -13,8 +13,8 @@
     <string name="port_tip">port:为空不过滤</string>
 
     <string-array name="capture_mode">
-        <item>any</item>
-        <item>lo</item>
+        <item>全部any</item>
+        <item>回环lo</item>
     </string-array>
 
 </resources>
