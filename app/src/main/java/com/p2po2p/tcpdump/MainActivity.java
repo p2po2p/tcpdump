@@ -170,12 +170,12 @@ public class MainActivity extends Activity {
     private void startLogcat() {
         button_export_logcat.setEnabled(false);
         button_export_all.setEnabled(false);
-        
+
         SimpleDateFormat format = new SimpleDateFormat("MMdd_HHmmss");
         String date = format.format(new Date(System.currentTimeMillis()));
 
         CommandsHelper.LOGCAT_DEST_FILE = getExternalFilesDir("") + "/" + date + ".txt";
-
+        CommandsHelper.LOGCAT_ZIP = getExternalFilesDir("") + "/" + date + ".zip";
         String tip = "\n" + "日志保存路径： " + CommandsHelper.LOGCAT_DEST_FILE;
         textView_logcat_path.setText(tip);
 
@@ -189,6 +189,7 @@ public class MainActivity extends Activity {
 
     private void stopLogcat() {
         CommandsHelper.stopLogcat();
+        new ZipUtils(new String[]{CommandsHelper.LOGCAT_DEST_FILE}, CommandsHelper.LOGCAT_ZIP).zip();
         button_export_logcat.setEnabled(true);
         button_export_all.setEnabled(true);
     }
@@ -206,14 +207,14 @@ public class MainActivity extends Activity {
                 ShareUtil.shareSingle(MainActivity.this, tip, path);
             } else if (tag.equalsIgnoreCase("logcat")) {
                 Log.i("h02659", "分享日志 " + tag);
-                String path = CommandsHelper.LOGCAT_DEST_FILE;
+                String path = CommandsHelper.LOGCAT_ZIP;
                 String tip = "日志";
                 ShareUtil.shareSingle(MainActivity.this, tip, path);
             } else if (tag.equalsIgnoreCase("all")) {
                 Log.i("h02659", "分享全部 " + tag);
                 List<String> listPath = new ArrayList<>();
                 listPath.add(CommandsHelper.CAPTURE_DEST_FILE);
-                listPath.add(CommandsHelper.LOGCAT_DEST_FILE);
+                listPath.add(CommandsHelper.LOGCAT_ZIP);
                 String[] paths = listPath.toArray(new String[listPath.size()]);
                 String tip = "报文+日志";
                 ShareUtil.shareMutiple(MainActivity.this, tip, paths);

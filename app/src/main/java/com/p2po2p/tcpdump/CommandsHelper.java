@@ -26,6 +26,7 @@ public class CommandsHelper {
     private static final String NAME = "tcpdump";
     static String CAPTURE_DEST_FILE = "/capture.pcap";
     static String LOGCAT_DEST_FILE = "/log.txt";
+    static String LOGCAT_ZIP = "/log.zip";
 
     static boolean startCapture(Context context, String ip, String port, String mode) {
         Log.i("h02659", "startCapture start ip:" + ip +" port:" + port);
@@ -93,17 +94,16 @@ public class CommandsHelper {
 
         //输出logadb logcat -f /data/local/tmp/log.txt -n 10 -r 1
 
-        String logcatCommand = "logcat -f "+LOGCAT_DEST_FILE;
+        String logcatCommand = "logcat -v time -f "+LOGCAT_DEST_FILE;
 
         Log.i("h02659",logcatCommand);
 
         boolean retVal = false;
         try {
-            String[] commands = new String[4];
+            String[] commands = new String[3];
             commands[0] = "adb shell";
-            commands[1] = "su";
-            commands[2] = "cd /data/local";
-            commands[3] = logcatCommand;
+            commands[1] = "logcat -c";
+            commands[2] = logcatCommand;
             execCmd(commands);
         } catch (Exception e) {
             e.printStackTrace();
