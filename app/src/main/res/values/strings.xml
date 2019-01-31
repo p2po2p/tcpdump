@@ -5,8 +5,9 @@
     <string name="work_tip">注意：确保手机能获取到root权限\n启动时请允许写入存储，否则会导致抓包失败</string>
     <string name="start">start</string>
     <string name="stop">stop</string>
-    <string name="export">export</string>
-    <string name="send">send</string>
+    <string name="export_capture">导出报文</string>
+    <string name="export_logcat">导出日志</string>
+    <string name="export_all">一起导出</string>
     <string name="sharing_title">分享</string>
     <string name="ip_tip">ip:为空不过滤</string>
     <string name="port_tip">port:为空不过滤</string>

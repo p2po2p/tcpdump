@@ -17,23 +17,32 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class MainActivity extends Activity {
 
-    private TextView textView;
-    private Button button_start_capture;
-    private Button button_stop_capture;
-    private Button button_export;
+    private TextView textView_capture_path;
+    private TextView textView_logcat_path;
+    private Button button_export_capture;
+    private Button button_export_logcat;
+    private Button button_export_all;
     private EditText editText_ip;
     private EditText editText_port;
     private Spinner spinner_mode;
+    private CheckBox checkBox_capture;
+    private CheckBox checkBox_logcat;
+
+
     private String capture_mode = "any";
 
     @Override
@@ -48,19 +57,29 @@ public class MainActivity extends Activity {
             createNotificationChannel(channelId, channelName, importance);
         }
         sendChatMsg();
-        textView = findViewById(R.id.textView);
+        textView_capture_path = findViewById(R.id.textView_capture_path);
+        textView_logcat_path = findViewById(R.id.textView_logcat_path);
         editText_ip = findViewById(R.id.editText_ip);
         editText_port = findViewById(R.id.editText_port);
         spinner_mode = findViewById(R.id.spinner_mode);
+        checkBox_capture = findViewById(R.id.checkBox_capture);
+        checkBox_logcat = findViewById(R.id.checkBox_logcat);
 
-        button_start_capture = findViewById(R.id.start_capture);
-        button_start_capture.setOnClickListener(onStartCaptureClickListener);
-        button_stop_capture = findViewById(R.id.stop_capture);
-        button_stop_capture.setOnClickListener(onStopCaptureClickListener);
-        button_export = findViewById(R.id.export);
-        button_export.setOnClickListener(onExportClickListener);
-        button_export.setEnabled(false);
+        button_export_capture = findViewById(R.id.export_capture);
+        button_export_capture.setOnClickListener(onExportClickListener);
+        button_export_capture.setEnabled(false);
+
+        button_export_logcat = findViewById(R.id.export_logcat);
+        button_export_logcat.setOnClickListener(onExportClickListener);
+        button_export_logcat.setEnabled(false);
+
+        button_export_all = findViewById(R.id.export_all);
+        button_export_all.setOnClickListener(onExportClickListener);
+        button_export_all.setEnabled(false);
+
         spinner_mode.setOnItemSelectedListener(onItemSelectedListener);
+        checkBox_capture.setOnCheckedChangeListener(captureCheckListener);
+        checkBox_logcat.setOnCheckedChangeListener(logcatCheckListener);
     }
 
     @Override
@@ -76,67 +95,130 @@ public class MainActivity extends Activity {
         return super.onKeyDown(keyCode, event);
     }
 
-    private View.OnClickListener onStartCaptureClickListener = new View.OnClickListener() {
+    private CompoundButton.OnCheckedChangeListener captureCheckListener = new CompoundButton.OnCheckedChangeListener() {
+
         @Override
-        public void onClick(final View v) {
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            if (isChecked) {
+                //开始抓包
+                startCapture();
+            } else {
+                stopCapture();
+            }
+        }
+    };
 
-            button_export.setEnabled(false);
+    private CompoundButton.OnCheckedChangeListener logcatCheckListener = new CompoundButton.OnCheckedChangeListener() {
 
-            SimpleDateFormat format = new SimpleDateFormat("MMdd_HHmmss");
-            String date = format.format(new Date(System.currentTimeMillis()));
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            if (isChecked) {
+                //开始抓日志
+                startLogcat();
+            } else {
+                stopLogcat();
+            }
+        }
+    };
 
-            final String ip = editText_ip.getText().toString();
-            final String port = editText_port.getText().toString();
+    private void startCapture() {
+        button_export_capture.setEnabled(false);
+        button_export_all.setEnabled(false);
 
+        SimpleDateFormat format = new SimpleDateFormat("MMdd_HHmmss");
+        String date = format.format(new Date(System.currentTimeMillis()));
 
-            CommandsHelper.FILE_NAME = date + ".pcap";
-            CommandsHelper.DEST_FILE = getExternalFilesDir("") +"/"+ CommandsHelper.FILE_NAME;
+        final String ip = editText_ip.getText().toString();
+        final String port = editText_port.getText().toString();
 
-            textView.setText("\n" + "保存路径： " + CommandsHelper.DEST_FILE);
+        CommandsHelper.CAPTURE_DEST_FILE = getExternalFilesDir("") + "/" + date + ".pcap";
 
-            v.setEnabled(false);
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    final boolean retVal = CommandsHelper.startCapture(MainActivity.this, ip, port, capture_mode);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (!retVal) {
-                                v.setEnabled(true);
-                                //Toast.makeText(MainActivity.this, "startCapture result = " + retVal, Toast.LENGTH_SHORT).show();
-                                Toast.makeText(MainActivity.this, "开启失败，请确认授予root权限，程序即将退出", Toast.LENGTH_LONG).show();
-                            }
+        String tip = "\n" + "报文保存路径： " + CommandsHelper.CAPTURE_DEST_FILE;
+        textView_capture_path.setText(tip);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final boolean retVal = CommandsHelper.startCapture(MainActivity.this, ip, port, capture_mode);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!retVal) {
+                            //Toast.makeText(MainActivity.this, "startCapture result = " + retVal, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "开启失败，请确认授予root权限，程序即将退出", Toast.LENGTH_LONG).show();
                         }
-                    });
-                    if (!retVal) {
-                        try {
-                            Thread.sleep(3000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        android.os.Process.killProcess(android.os.Process.myPid());
                     }
+                });
+                if (!retVal) {
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    android.os.Process.killProcess(android.os.Process.myPid());
                 }
-            }).start();
-        }
-    };
+            }
+        }).start();
+    }
 
-    private View.OnClickListener onStopCaptureClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            CommandsHelper.stopCapture(MainActivity.this);
-            button_start_capture.setEnabled(true);
-            button_export.setEnabled(true);
-        }
-    };
+    private void stopCapture() {
+        CommandsHelper.stopCapture(MainActivity.this);
+        button_export_capture.setEnabled(true);
+        button_export_all.setEnabled(true);
+    }
+
+    private void startLogcat() {
+        button_export_logcat.setEnabled(false);
+        button_export_all.setEnabled(false);
+        
+        SimpleDateFormat format = new SimpleDateFormat("MMdd_HHmmss");
+        String date = format.format(new Date(System.currentTimeMillis()));
+
+        CommandsHelper.LOGCAT_DEST_FILE = getExternalFilesDir("") + "/" + date + ".txt";
+
+        String tip = "\n" + "日志保存路径： " + CommandsHelper.LOGCAT_DEST_FILE;
+        textView_logcat_path.setText(tip);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                CommandsHelper.startLogcat();
+            }
+        }).start();
+    }
+
+    private void stopLogcat() {
+        CommandsHelper.stopLogcat();
+        button_export_logcat.setEnabled(true);
+        button_export_all.setEnabled(true);
+    }
 
     private View.OnClickListener onExportClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            String path = CommandsHelper.DEST_FILE;
+            String tag = String.valueOf(v.getTag());
 
-            ShareUtil.shareSingle(MainActivity.this, "抓包", path);
+            if (tag.equalsIgnoreCase("capture")) {
+                Log.i("h02659", "分享报文 " + tag);
+
+                String path = CommandsHelper.CAPTURE_DEST_FILE;
+                String tip = "报文";
+                ShareUtil.shareSingle(MainActivity.this, tip, path);
+            } else if (tag.equalsIgnoreCase("logcat")) {
+                Log.i("h02659", "分享日志 " + tag);
+                String path = CommandsHelper.LOGCAT_DEST_FILE;
+                String tip = "日志";
+                ShareUtil.shareSingle(MainActivity.this, tip, path);
+            } else if (tag.equalsIgnoreCase("all")) {
+                Log.i("h02659", "分享全部 " + tag);
+                List<String> listPath = new ArrayList<>();
+                listPath.add(CommandsHelper.CAPTURE_DEST_FILE);
+                listPath.add(CommandsHelper.LOGCAT_DEST_FILE);
+                String[] paths = listPath.toArray(new String[listPath.size()]);
+                String tip = "报文+日志";
+                ShareUtil.shareMutiple(MainActivity.this, tip, paths);
+            }
+
         }
     };
 
@@ -144,7 +226,7 @@ public class MainActivity extends Activity {
 
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            Log.i("h02659", "position:"+position);
+            Log.i("h02659", "position:" + position);
             if (position == 0) {
                 capture_mode = "any";
             } else if (position == 1) {

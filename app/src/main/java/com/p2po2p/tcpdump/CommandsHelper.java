@@ -24,10 +24,8 @@ import java.io.OutputStream;
 
 public class CommandsHelper {
     private static final String NAME = "tcpdump";
-    private static final String TAG = "CommandsHelper";
-    static String DEST_FILE = "/capture.pcap";
-
-    static String FILE_NAME = "capture.pcap";
+    static String CAPTURE_DEST_FILE = "/capture.pcap";
+    static String LOGCAT_DEST_FILE = "/log.txt";
 
     static boolean startCapture(Context context, String ip, String port, String mode) {
         Log.i("h02659", "startCapture start ip:" + ip +" port:" + port);
@@ -49,17 +47,17 @@ public class CommandsHelper {
             captureCommand = captureCommand + " port " + port;
         }
 
-        captureCommand = captureCommand + " -w " + DEST_FILE;
+        captureCommand = captureCommand + " -w " + CAPTURE_DEST_FILE;
 
         Log.i("h02659",captureCommand);
 
         boolean retVal = false;
         try {
-            String[] commands = new String[7];
+            String[] commands = new String[4];
             commands[0] = "adb shell";
             commands[1] = "su";
-            commands[5] = "cd /data/local";
-            commands[6] = captureCommand;
+            commands[2] = "cd /data/local";
+            commands[3] = captureCommand;
             execCmd(commands);
         } catch (Exception e) {
             e.printStackTrace();
@@ -75,6 +73,52 @@ public class CommandsHelper {
         commands[0] = "adb shell";
         //commands[1] = "ps|grep tcpdump|grep root|awk '{print $2}'";
         commands[1] = "ps|grep tcpdump|grep root";
+        Process process = execCmd(commands);
+        String result = parseInputStream(process.getInputStream());
+        Log.i("h02659",result );
+        if (!TextUtils.isEmpty(result)) {
+            String[] pids = result.split("\n");
+            String[] killCmds = new String[pids.length];
+            for (int i = 0; i < pids.length; ++i) {
+                killCmds[i] = "kill -9 " + pids[i];
+                Log.i("h02659",killCmds[i] );
+            }
+            execCmd(killCmds);
+        }
+        Log.i("h02659", "stopCapture end");
+    }
+
+    static boolean startLogcat() {
+        Log.i("h02659", "startLogcat ");
+
+        //输出logadb logcat -f /data/local/tmp/log.txt -n 10 -r 1
+
+        String logcatCommand = "logcat -f "+LOGCAT_DEST_FILE;
+
+        Log.i("h02659",logcatCommand);
+
+        boolean retVal = false;
+        try {
+            String[] commands = new String[4];
+            commands[0] = "adb shell";
+            commands[1] = "su";
+            commands[2] = "cd /data/local";
+            commands[3] = logcatCommand;
+            execCmd(commands);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.i("h02659", "startCapture end");
+        return retVal;
+    }
+
+    static void stopLogcat() {
+        Log.i("h02659", "stopLogcat start");
+        // 找出所有的带有tcpdump的进程
+        String[] commands = new String[2];
+        commands[0] = "adb shell";
+        //commands[1] = "ps|grep tcpdump|grep root|awk '{print $2}'";
+        commands[1] = "ps|grep logcat";
         Log.i("h02659",commands[1] );
         Process process = execCmd(commands);
         String result = parseInputStream(process.getInputStream());
@@ -160,7 +204,7 @@ public class CommandsHelper {
     public static void exportFile() {
         Log.i("h02659", "exportFile start");
         String[] commands = new String[1];
-        commands[0] = "adb pull "+ DEST_FILE +" D:/log/";
+        commands[0] = "adb pull "+ CAPTURE_DEST_FILE +" D:/log/";
         Process process = execCmd(commands);
         String result = parseInputStream(process.getInputStream());
         if (!TextUtils.isEmpty(result)) {
