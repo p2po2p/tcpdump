@@ -15,6 +15,6 @@ Android app，本地使用tcpdump抓报文，logcat抓日志，然后导出分�
 * 日志过滤参数增加.
 * 抓日志时记录设备信息.
 
-![Image text](https://raw.github.com/p2po2p/repositpry/master/tcpdump/img-folder/device-2019-01-31-162733.jpg)
+![Image text](https://github.com/p2po2p/tcpdump/raw/master/img-folder/device-2019-01-31-162733.jpg)
 
 
