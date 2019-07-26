@@ -42,6 +42,8 @@ public class MainActivity extends Activity {
     private CheckBox checkBox_capture;
     private CheckBox checkBox_logcat;
 
+    private static boolean isGetRoot = false;
+
 
     private String capture_mode = "any";
 
@@ -78,8 +80,8 @@ public class MainActivity extends Activity {
         button_export_all.setEnabled(false);
 
         spinner_mode.setOnItemSelectedListener(onItemSelectedListener);
-        checkBox_capture.setOnCheckedChangeListener(captureCheckListener);
-        checkBox_logcat.setOnCheckedChangeListener(logcatCheckListener);
+        checkBox_capture.setOnClickListener(captureClickListener);
+        checkBox_logcat.setOnClickListener(logcatClickListener);
     }
 
     @Override
@@ -95,10 +97,11 @@ public class MainActivity extends Activity {
         return super.onKeyDown(keyCode, event);
     }
 
-    private CompoundButton.OnCheckedChangeListener captureCheckListener = new CompoundButton.OnCheckedChangeListener() {
-
+    private View.OnClickListener captureClickListener = new View.OnClickListener() {
         @Override
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        public void onClick(View v) {
+            boolean isChecked = checkBox_capture.isChecked();
+            checkBox_capture.setChecked(isChecked);
             if (isChecked) {
                 //开始抓包
                 startCapture();
@@ -108,10 +111,11 @@ public class MainActivity extends Activity {
         }
     };
 
-    private CompoundButton.OnCheckedChangeListener logcatCheckListener = new CompoundButton.OnCheckedChangeListener() {
-
+    private View.OnClickListener logcatClickListener = new View.OnClickListener() {
         @Override
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        public void onClick(View v) {
+            boolean isChecked = checkBox_logcat.isChecked();
+            checkBox_logcat.setChecked(isChecked);
             if (isChecked) {
                 //开始抓日志
                 startLogcat();
@@ -145,17 +149,21 @@ public class MainActivity extends Activity {
                     public void run() {
                         if (!retVal) {
                             //Toast.makeText(MainActivity.this, "startCapture result = " + retVal, Toast.LENGTH_SHORT).show();
-                            Toast.makeText(MainActivity.this, "开启失败，请确认授予root权限，程序即将退出", Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this, "开启失败，请确认授予root权限", Toast.LENGTH_LONG).show();
                         }
                     }
                 });
                 if (!retVal) {
-                    try {
+                    isGetRoot = false;
+                    checkBox_capture.setChecked(false);
+                    /*try {
                         Thread.sleep(3000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    android.os.Process.killProcess(android.os.Process.myPid());
+                    android.os.Process.killProcess(android.os.Process.myPid());*/
+                } else {
+                    isGetRoot = true;
                 }
             }
         }).start();
