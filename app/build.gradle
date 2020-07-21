@@ -1,5 +1,12 @@
 apply plugin: 'com.android.application'
 
+//获取编译时间
+static def buildTime() {
+    def date = new Date()
+    def formattedDate = date.format('yyyyMMdd')
+    return formattedDate
+}
+
 android {
     compileSdkVersion 28
     defaultConfig {
@@ -9,6 +16,7 @@ android {
         versionCode 20
         flavorDimensions "4"
         versionName "2.0"
+        buildConfigField "String", "BUILD_TIME", "\"${buildTime()}\""
     }
 
     productFlavors {

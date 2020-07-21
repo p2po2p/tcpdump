@@ -7,6 +7,8 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,12 +16,12 @@ import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
@@ -81,6 +83,43 @@ public class MainActivity extends Activity {
         checkBox_capture_any.setOnClickListener(captureAnyClickListener);
         checkBox_capture_lo.setOnClickListener(captureLoClickListener);
         checkBox_logcat.setOnClickListener(logcatClickListener);
+    }
+
+    //这里是在登录界面label上右上角添加三个点，里面可添加其他功能
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);//这里是调用menu文件夹中的main.xml，在登陆界面label右上角的三角里显示其他功能
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        Log.i("h02659","id = "+id);
+        switch ( id ){
+            case R.id.action_about :
+                String versionName = "版本：";
+                // 获取应用版本号
+                try {
+                    // 获取编译日期
+                    String buildDate = BuildConfig.BUILD_TIME;
+
+                    PackageInfo packageInfo = getPackageManager().getPackageInfo(
+                            this.getPackageName(), 0);
+                    versionName = versionName +  packageInfo.versionName + "(Build"+buildDate+")";
+                } catch (PackageManager.NameNotFoundException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+                versionName = versionName + "\n https://github.com/p2po2p/tcpdump";
+                Toast.makeText(MainActivity.this,versionName ,Toast.LENGTH_LONG).show();
+                break;
+            default:
+                break;
+        }
+        return true;
     }
 
     @Override
@@ -224,15 +263,13 @@ public class MainActivity extends Activity {
             String tag = String.valueOf(v.getTag());
 
             if (tag.equalsIgnoreCase("capture_any")) {
-                Log.i("h02659", "分享全部报文 " + tag);
-
                 String path = CaptureAny.getCAPTURE_DEST_FILE();
+                Log.i("h02659", "分享全部报文 " + tag +" "+ path);
                 String tip = "全部报文";
                 ShareUtil.shareSingle(MainActivity.this, tip, path);
             } else if (tag.equalsIgnoreCase("capture_lo")) {
-                Log.i("h02659", "分享回环报文 " + tag);
-
                 String path = CaptureLo.getCAPTURE_DEST_FILE();
+                Log.i("h02659", "分享回环报文 " + tag +" "+ path);
                 String tip = "回环报文";
                 ShareUtil.shareSingle(MainActivity.this, tip, path);
             } else if (tag.equalsIgnoreCase("logcat")) {

@@ -40,6 +40,7 @@ public class CommandsHelper {
     }
 
     public void setCAPTURE_DEST_FILE(String CAPTURE_DEST_FILE) {
+        Log.i("h02659",CAPTURE_DEST_FILE);
         this.CAPTURE_DEST_FILE = CAPTURE_DEST_FILE;
     }
 

@@ -11,7 +11,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="30dp"
         android:text="@string/work_tip"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -20,9 +20,8 @@
 
     <LinearLayout
         android:layout_width="wrap_content"
-
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp">
+        android:layout_marginTop="10dp">
 
         <TextView
             android:layout_width="wrap_content"
@@ -61,15 +60,15 @@
         android:id="@+id/textView_capture_path"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
         android:gravity="center_horizontal"
-        android:paddingTop="20dp"
         android:text="保存路径： /sccard/Android/com.p2op2p.tcpdump/files/" />
 
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp">
+        android:layout_marginTop="40dp">
 
         <TextView
             android:layout_width="wrap_content"
@@ -80,6 +79,7 @@
             android:id="@+id/checkBox_capture_any"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
             android:background="@drawable/alarm_push_checkbox_selector"
             android:button="@null" />
 
@@ -87,6 +87,7 @@
             android:id="@+id/export_capture_any"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
             android:tag="capture_any"
             android:text="@string/export_capture" />
     </LinearLayout>
@@ -105,6 +106,7 @@
             android:id="@+id/checkBox_capture_lo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
             android:background="@drawable/alarm_push_checkbox_selector"
             android:button="@null" />
 
@@ -112,6 +114,7 @@
             android:id="@+id/export_capture_lo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
             android:tag="capture_lo"
             android:text="导出回环" />
     </LinearLayout>
@@ -119,7 +122,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp">
+        android:layout_marginTop="20dp">
 
         <TextView
             android:layout_width="wrap_content"
@@ -130,6 +133,7 @@
             android:id="@+id/checkBox_logcat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
             android:background="@drawable/alarm_push_checkbox_selector"
             android:button="@null" />
 
@@ -137,6 +141,7 @@
             android:id="@+id/export_logcat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
             android:tag="logcat"
             android:text="@string/export_logcat" />
     </LinearLayout>
