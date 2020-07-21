@@ -83,11 +83,15 @@ public class CommandsHelper {
             commands[1] = "su";
             commands[2] = "cd /data/local";
             commands[3] = captureCommand;
-            execCmd(commands);
+            Process process = execCmd(commands);
+            if (process != null) {
+                Log.i("h02659", "process not null");
+                retVal = true;
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Log.i("h02659", "startCapture end");
+        Log.i("h02659", "startCapture end "+retVal);
         return retVal;
     }
 
@@ -260,11 +264,14 @@ public class CommandsHelper {
             os.flush();
         } catch (IOException e) {
             e.printStackTrace();
+            Log.e("h02659", "no permission");
+            return null;
         }
         if (waitFor) {
             boolean retval = false;
             try {
                 int suProcessRetval = suProcess.waitFor();
+                Log.i("h02659", "suProcessRetval:" + suProcessRetval);
                 if (255 != suProcessRetval) {
                     retval = true;
                 } else {
