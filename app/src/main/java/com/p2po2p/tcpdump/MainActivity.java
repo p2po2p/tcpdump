@@ -245,7 +245,19 @@ public class MainActivity extends Activity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                CommandsHelper.startLogcat();
+                final boolean retVal = CommandsHelper.startLogcat();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!retVal) {
+                            //Toast.makeText(MainActivity.this, "startCapture result = " + retVal, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "开启失败，请确认授予root权限", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+                if (!retVal) {
+                    checkBox_logcat.setChecked(false);
+                }
             }
         }).start();
     }

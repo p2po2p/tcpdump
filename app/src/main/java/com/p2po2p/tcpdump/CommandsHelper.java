@@ -132,7 +132,10 @@ public class CommandsHelper {
             commands[0] = "adb shell";
             commands[1] = "logcat -c";
             commands[2] = logcatCommand;
-            execCmd(commands);
+            Process process = execCmd(commands);
+            if (process != null) {
+                retVal = true;
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
