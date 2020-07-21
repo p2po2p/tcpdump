@@ -23,12 +23,35 @@ import java.io.OutputStream;
  */
 
 public class CommandsHelper {
+    public static String CAPTURE_MODE_ANY = "any";
+    public static String CAPTURE_MODE_LO = "lo";
     private static final String NAME = "tcpdump";
-    static String CAPTURE_DEST_FILE = "/capture.pcap";
+    private String CAPTURE_DEST_FILE = "/capture.pcap";
     static String LOGCAT_DEST_FILE = "/log.txt";
     static String LOGCAT_ZIP = "/log.zip";
+    private String capture_mode = CAPTURE_MODE_ANY;
 
-    static boolean startCapture(Context context, String ip, String port, String mode) {
+    public CommandsHelper(String capture_mode) {
+        this.capture_mode = capture_mode;
+    }
+
+    public String getCAPTURE_DEST_FILE() {
+        return CAPTURE_DEST_FILE;
+    }
+
+    public void setCAPTURE_DEST_FILE(String CAPTURE_DEST_FILE) {
+        this.CAPTURE_DEST_FILE = CAPTURE_DEST_FILE;
+    }
+
+    public String getCapture_mode() {
+        return capture_mode;
+    }
+
+    public void setCapture_mode(String capture_mode) {
+        this.capture_mode = capture_mode;
+    }
+
+    public boolean startCapture(Context context, String ip, String port) {
         Log.i("h02659", "startCapture start ip:" + ip +" port:" + port);
         //准备tcpdump文件+赋予tcpdump权限
         prepareTCPDumpFile(context);
@@ -38,7 +61,7 @@ public class CommandsHelper {
 
         String captureCommand = "tcpdump -i "+ num +" -p -vv -s 0";*/
 
-        String captureCommand = "./tcpdump -i "+mode+" -p -vv -s 0";
+        String captureCommand = "./tcpdump -i "+capture_mode+" -p -vv -s 0";
 
         if (ip != null && !ip.isEmpty()) {
             captureCommand = captureCommand + " host " + ip;
@@ -67,7 +90,7 @@ public class CommandsHelper {
         return retVal;
     }
 
-    static void stopCapture(Context context) {
+    public void stopCapture() {
         Log.i("h02659", "stopCapture start");
         // 找出所有的带有tcpdump的进程
         String[] commands = new String[2];
@@ -147,7 +170,7 @@ public class CommandsHelper {
      * 7.nflog (Linux netfilter log (NFLOG) interface)
      * 8.nfqueue (Linux netfilter queue (NFQUEUE) interface)
      */
-    private static int tcpdump_d_any() {
+    private int tcpdump_d_any() {
         Log.i("h02659", "tcpdump_d_any start");
         int num = 1;
         String[] commands = new String[2];
@@ -169,7 +192,7 @@ public class CommandsHelper {
         return num;
     }
 
-    private static void prepareTCPDumpFile(Context context) {
+    private void prepareTCPDumpFile(Context context) {
         Log.i("h02659", "prepareTCPDumpFile start");
         InputStream is = null;
         OutputStream os = null;
@@ -201,7 +224,7 @@ public class CommandsHelper {
     /**
      * adb pull /sdcard/keeplive.pcap D:/log/
      */
-    public static void exportFile() {
+    public void exportFile() {
         Log.i("h02659", "exportFile start");
         String[] commands = new String[1];
         commands[0] = "adb pull "+ CAPTURE_DEST_FILE +" D:/log/";

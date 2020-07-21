@@ -15,10 +15,8 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -31,26 +29,25 @@ import java.util.List;
 
 public class MainActivity extends Activity {
 
-    private TextView textView_capture_path;
-    private TextView textView_logcat_path;
-    private Button button_export_capture;
+    private Button button_export_capture_any;
+    private Button button_export_capture_lo;
     private Button button_export_logcat;
     private Button button_export_all;
     private EditText editText_ip;
     private EditText editText_port;
-    private Spinner spinner_mode;
-    private CheckBox checkBox_capture;
+    private CheckBox checkBox_capture_any;
+    private CheckBox checkBox_capture_lo;
     private CheckBox checkBox_logcat;
 
-    private static boolean isGetRoot = false;
-
-
-    private String capture_mode = "any";
+    CommandsHelper CaptureAny,CaptureLo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        CaptureAny = new CommandsHelper("any");
+        CaptureLo = new CommandsHelper("lo");
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             String channelId = "chat";
@@ -59,17 +56,19 @@ public class MainActivity extends Activity {
             createNotificationChannel(channelId, channelName, importance);
         }
         sendChatMsg();
-        textView_capture_path = findViewById(R.id.textView_capture_path);
-        textView_logcat_path = findViewById(R.id.textView_logcat_path);
         editText_ip = findViewById(R.id.editText_ip);
         editText_port = findViewById(R.id.editText_port);
-        spinner_mode = findViewById(R.id.spinner_mode);
-        checkBox_capture = findViewById(R.id.checkBox_capture);
+        checkBox_capture_any = findViewById(R.id.checkBox_capture_any);
+        checkBox_capture_lo = findViewById(R.id.checkBox_capture_lo);
         checkBox_logcat = findViewById(R.id.checkBox_logcat);
 
-        button_export_capture = findViewById(R.id.export_capture);
-        button_export_capture.setOnClickListener(onExportClickListener);
-        button_export_capture.setEnabled(false);
+        button_export_capture_any = findViewById(R.id.export_capture_any);
+        button_export_capture_any.setOnClickListener(onExportClickListener);
+        button_export_capture_any.setEnabled(false);
+
+        button_export_capture_lo = findViewById(R.id.export_capture_lo);
+        button_export_capture_lo.setOnClickListener(onExportClickListener);
+        button_export_capture_lo.setEnabled(false);
 
         button_export_logcat = findViewById(R.id.export_logcat);
         button_export_logcat.setOnClickListener(onExportClickListener);
@@ -79,8 +78,8 @@ public class MainActivity extends Activity {
         button_export_all.setOnClickListener(onExportClickListener);
         button_export_all.setEnabled(false);
 
-        spinner_mode.setOnItemSelectedListener(onItemSelectedListener);
-        checkBox_capture.setOnClickListener(captureClickListener);
+        checkBox_capture_any.setOnClickListener(captureAnyClickListener);
+        checkBox_capture_lo.setOnClickListener(captureLoClickListener);
         checkBox_logcat.setOnClickListener(logcatClickListener);
     }
 
@@ -97,16 +96,30 @@ public class MainActivity extends Activity {
         return super.onKeyDown(keyCode, event);
     }
 
-    private View.OnClickListener captureClickListener = new View.OnClickListener() {
+    private View.OnClickListener captureAnyClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            boolean isChecked = checkBox_capture.isChecked();
-            checkBox_capture.setChecked(isChecked);
+            boolean isChecked = checkBox_capture_any.isChecked();
+            checkBox_capture_any.setChecked(isChecked);
             if (isChecked) {
                 //开始抓包
-                startCapture();
+                startCapture(CaptureAny);
             } else {
-                stopCapture();
+                stopCapture(CaptureAny);
+            }
+        }
+    };
+
+    private View.OnClickListener captureLoClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            boolean isChecked = checkBox_capture_lo.isChecked();
+            checkBox_capture_lo.setChecked(isChecked);
+            if (isChecked) {
+                //开始抓包
+                startCapture(CaptureLo);
+            } else {
+                stopCapture(CaptureLo);
             }
         }
     };
@@ -125,9 +138,14 @@ public class MainActivity extends Activity {
         }
     };
 
-    private void startCapture() {
-        button_export_capture.setEnabled(false);
-        button_export_all.setEnabled(false);
+    private void startCapture(final CommandsHelper commandsHelper) {
+        if (commandsHelper.getCapture_mode() .equalsIgnoreCase(CommandsHelper.CAPTURE_MODE_LO)) {
+            button_export_capture_lo.setEnabled(false);
+            button_export_all.setEnabled(false);
+        } else if (commandsHelper.getCapture_mode() .equalsIgnoreCase(CommandsHelper.CAPTURE_MODE_ANY)){
+            button_export_capture_any.setEnabled(false);
+            button_export_all.setEnabled(false);
+        }
 
         SimpleDateFormat format = new SimpleDateFormat("MMdd_HHmmss");
         String date = format.format(new Date(System.currentTimeMillis()));
@@ -135,15 +153,12 @@ public class MainActivity extends Activity {
         final String ip = editText_ip.getText().toString();
         final String port = editText_port.getText().toString();
 
-        CommandsHelper.CAPTURE_DEST_FILE = getExternalFilesDir("") + "/" + date + ".pcap";
-
-        String tip = "\n" + "报文保存路径： " + CommandsHelper.CAPTURE_DEST_FILE;
-        textView_capture_path.setText(tip);
+        commandsHelper.setCAPTURE_DEST_FILE(getExternalFilesDir("") + "/" + commandsHelper.getCapture_mode()+ "_" + date + ".pcap");
 
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final boolean retVal = CommandsHelper.startCapture(MainActivity.this, ip, port, capture_mode);
+                final boolean retVal = commandsHelper.startCapture(MainActivity.this, ip, port);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -154,25 +169,28 @@ public class MainActivity extends Activity {
                     }
                 });
                 if (!retVal) {
-                    isGetRoot = false;
-                    checkBox_capture.setChecked(false);
+                    checkBox_capture_any.setChecked(false);
+                    checkBox_capture_lo.setChecked(false);
                     /*try {
                         Thread.sleep(3000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                     android.os.Process.killProcess(android.os.Process.myPid());*/
-                } else {
-                    isGetRoot = true;
                 }
             }
         }).start();
     }
 
-    private void stopCapture() {
-        CommandsHelper.stopCapture(MainActivity.this);
-        button_export_capture.setEnabled(true);
-        button_export_all.setEnabled(true);
+    private void stopCapture(CommandsHelper commandsHelper) {
+        commandsHelper.stopCapture();
+        if (commandsHelper.getCapture_mode() .equalsIgnoreCase(CommandsHelper.CAPTURE_MODE_LO)) {
+            button_export_capture_lo.setEnabled(true);
+            button_export_all.setEnabled(true);
+        } else if (commandsHelper.getCapture_mode() .equalsIgnoreCase(CommandsHelper.CAPTURE_MODE_ANY)){
+            button_export_capture_any.setEnabled(true);
+            button_export_all.setEnabled(true);
+        }
     }
 
     private void startLogcat() {
@@ -184,8 +202,6 @@ public class MainActivity extends Activity {
 
         CommandsHelper.LOGCAT_DEST_FILE = getExternalFilesDir("") + "/" + date + ".txt";
         CommandsHelper.LOGCAT_ZIP = getExternalFilesDir("") + "/" + date + ".zip";
-        String tip = "\n" + "日志保存路径： " + CommandsHelper.LOGCAT_DEST_FILE;
-        textView_logcat_path.setText(tip);
 
         new Thread(new Runnable() {
             @Override
@@ -207,11 +223,17 @@ public class MainActivity extends Activity {
         public void onClick(View v) {
             String tag = String.valueOf(v.getTag());
 
-            if (tag.equalsIgnoreCase("capture")) {
-                Log.i("h02659", "分享报文 " + tag);
+            if (tag.equalsIgnoreCase("capture_any")) {
+                Log.i("h02659", "分享全部报文 " + tag);
 
-                String path = CommandsHelper.CAPTURE_DEST_FILE;
-                String tip = "报文";
+                String path = CaptureAny.getCAPTURE_DEST_FILE();
+                String tip = "全部报文";
+                ShareUtil.shareSingle(MainActivity.this, tip, path);
+            } else if (tag.equalsIgnoreCase("capture_lo")) {
+                Log.i("h02659", "分享回环报文 " + tag);
+
+                String path = CaptureLo.getCAPTURE_DEST_FILE();
+                String tip = "回环报文";
                 ShareUtil.shareSingle(MainActivity.this, tip, path);
             } else if (tag.equalsIgnoreCase("logcat")) {
                 Log.i("h02659", "分享日志 " + tag);
@@ -221,32 +243,13 @@ public class MainActivity extends Activity {
             } else if (tag.equalsIgnoreCase("all")) {
                 Log.i("h02659", "分享全部 " + tag);
                 List<String> listPath = new ArrayList<>();
-                listPath.add(CommandsHelper.CAPTURE_DEST_FILE);
+                listPath.add(CaptureAny.getCAPTURE_DEST_FILE());
+                listPath.add(CaptureLo.getCAPTURE_DEST_FILE());
                 listPath.add(CommandsHelper.LOGCAT_ZIP);
                 String[] paths = listPath.toArray(new String[listPath.size()]);
-                String tip = "报文+日志";
+                String tip = "全部报文+回环报文+日志";
                 ShareUtil.shareMutiple(MainActivity.this, tip, paths);
             }
-
-        }
-    };
-
-    private Spinner.OnItemSelectedListener onItemSelectedListener = new Spinner.OnItemSelectedListener() {
-
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            Log.i("h02659", "position:" + position);
-            if (position == 0) {
-                capture_mode = "any";
-            } else if (position == 1) {
-                capture_mode = "lo";
-            } else {
-                capture_mode = "any";
-            }
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {
 
         }
     };
@@ -300,7 +303,7 @@ public class MainActivity extends Activity {
 
 
         Notification notification = new NotificationCompat.Builder(this, "chat")
-                .setContentTitle("tcpdump")
+                .setContentTitle("root抓包")
                 .setContentText("触摸进行抓包配置")
                 .setWhen(System.currentTimeMillis())
                 .setSmallIcon(R.mipmap.ic_launcher)

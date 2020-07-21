@@ -57,41 +57,14 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="抓包模式" />
-
-
-        <Spinner
-            android:id="@+id/spinner_mode"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:entries="@array/capture_mode" />
-
-
-    </LinearLayout>
-
     <TextView
         android:id="@+id/textView_capture_path"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:paddingTop="20dp"
-        android:text="报文保存路径： /sccard/Android/com.p2op2p.tcpdump/files/xxx.pcap" />
+        android:text="保存路径： /sccard/Android/com.p2op2p.tcpdump/files/" />
 
-    <TextView
-        android:id="@+id/textView_logcat_path"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:paddingTop="20dp"
-        android:text="日志保存路径： /sccard/Android/com.p2op2p.tcpdump/files/xxx.txt" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -101,15 +74,46 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="开始/停止抓报文" />
+            android:text="全部报文" />
 
         <CheckBox
-            android:id="@+id/checkBox_capture"
+            android:id="@+id/checkBox_capture_any"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/alarm_push_checkbox_selector"
             android:button="@null" />
 
+        <Button
+            android:id="@+id/export_capture_any"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="capture_any"
+            android:text="@string/export_capture" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="回环报文" />
+
+        <CheckBox
+            android:id="@+id/checkBox_capture_lo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/alarm_push_checkbox_selector"
+            android:button="@null" />
+
+        <Button
+            android:id="@+id/export_capture_lo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="capture_lo"
+            android:text="导出回环" />
     </LinearLayout>
 
     <LinearLayout
@@ -120,7 +124,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="开始/停止抓日志" />
+            android:text="全部日志" />
 
         <CheckBox
             android:id="@+id/checkBox_logcat"
@@ -129,6 +133,12 @@
             android:background="@drawable/alarm_push_checkbox_selector"
             android:button="@null" />
 
+        <Button
+            android:id="@+id/export_logcat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="logcat"
+            android:text="@string/export_logcat" />
     </LinearLayout>
 
     <LinearLayout
@@ -136,19 +146,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp">
 
-        <Button
-            android:id="@+id/export_capture"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:tag="capture"
-            android:text="@string/export_capture" />
-
-        <Button
-            android:id="@+id/export_logcat"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:tag="logcat"
-            android:text="@string/export_logcat" />
 
         <Button
             android:id="@+id/export_all"
