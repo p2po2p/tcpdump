@@ -1,7 +1,7 @@
 tcpdump
 ====================
 
-Android app，本地使用tcpdump抓报文，logcat抓日志，然后导出分享， **抓包需要root权限**， 抓日志不需要.
+Android app，本地使用tcpdump抓报文，logcat抓日志，然后导出分享， **抓包及抓日志需要root权限**.
 
 功能说明:
 
@@ -15,6 +15,6 @@ Android app，本地使用tcpdump抓报文，logcat抓日志，然后导出分�
 * 日志过滤参数增加.
 * 抓日志时记录设备信息.
 
-![Image text](https://github.com/p2po2p/tcpdump/raw/master/img-folder/device-2019-01-31-162733.jpg)
+![Image text](https://github.com/p2po2p/tcpdump/raw/master/img-folder/device-2020-07-21-160554.jpg)
 
 
