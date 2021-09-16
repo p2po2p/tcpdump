@@ -3,8 +3,12 @@ package com.p2po2p.tcpdump;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
+
+import androidx.core.content.FileProvider;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -51,10 +55,23 @@ public class ShareUtil {
 		Log.i("h02659",resourceAddr);
 		Intent tent = new Intent(Intent.ACTION_SEND);
 		File file = new File(resourceAddr);
+		Uri uri = getShareUri(context, file, tent);
 		tent.setType(getMimeType(file));//设置发送类型
-		tent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+		tent.putExtra(Intent.EXTRA_STREAM, uri);
 		tent.putExtra(Intent.EXTRA_TEXT, text); // 内容
 		context.startActivity(Intent.createChooser(tent, context.getString(R.string.sharing_title)));
+	}
+
+	private static Uri getShareUri(Context context, File file, Intent intent) {
+		Uri uri = null;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+			uri = FileProvider.getUriForFile(context, context.getPackageName() + ".fileprovider", file);
+			//给予三方访问权限
+			intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+		} else {
+			uri = Uri.fromFile(file);
+		}
+		return uri;
 	}
 
 	/**
@@ -74,7 +91,7 @@ public class ShareUtil {
 		ArrayList<Uri> uris = new ArrayList<Uri>();
 		for (int i = 0; i < resourcesAddr.length; i++) {
 			File file = new File(resourcesAddr[i]);
-			uris.add(Uri.fromFile(file));
+			uris.add(getShareUri(context, file, tent));
 			tent.setType(getMimeType(file));//设置发送类型
 		}
 		tent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
